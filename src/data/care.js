@@ -43,6 +43,8 @@ export const specialities = [
     subtitle: "Women's health, pregnancy and infertility treatments",
     icon: HeartPulse,
     tone: 'rose',
+    image: '/images/spec-gynecology.jpg',
+    alt: 'Smiling gynecologist in a white coat',
   },
   {
     id: 'nutrition',
@@ -50,6 +52,8 @@ export const specialities = [
     subtitle: 'Eating right, weight management and sports nutrition',
     icon: Apple,
     tone: 'mint',
+    image: '/images/spec-nutrition.jpg',
+    alt: 'Bowl of fresh vegetables, eggs and avocado',
   },
   {
     id: 'physiotherapy',
@@ -57,6 +61,8 @@ export const specialities = [
     subtitle: 'Pulled a muscle? Get it treated by a trained physiotherapist',
     icon: Activity,
     tone: 'blue',
+    image: '/images/spec-physio.jpg',
+    alt: 'Physiotherapist treating a patient’s shoulder',
   },
   {
     id: 'surgery',
@@ -64,6 +70,8 @@ export const specialities = [
     subtitle: 'Need to get operated? Find the right surgeon',
     icon: Stethoscope,
     tone: 'violet',
+    image: '/images/spec-surgery.jpg',
+    alt: 'Surgeon in scrubs and a surgical cap',
   },
   {
     id: 'general',
@@ -71,6 +79,8 @@ export const specialities = [
     subtitle: 'Everyday illnesses, check-ups and health referrals',
     icon: ClipboardPlus,
     tone: 'amber',
+    image: '/images/spec-general.jpg',
+    alt: 'Friendly general physician in a white coat',
   },
 ];
 

@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Reveal from '../components/Reveal';
+import Photo from '../components/Photo';
 import MediSlipLogo from '../components/MediSlipLogo';
 import {
   Accessibility,
@@ -77,24 +78,59 @@ const About = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {highlights.map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <Reveal
-                  key={item.label}
-                  delay={i * 90}
-                  className={`rounded-[28px] border border-border bg-white p-6 shadow-sm ${i % 2 ? 'translate-y-8' : ''}`}
-                >
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${item.tone}`}>
-                    <Icon className="h-6 w-6" strokeWidth={1.75} />
-                  </div>
-                  <p className="mt-6 text-2xl font-extrabold tracking-[-0.03em] text-ink-900">{item.value}</p>
-                  <p className="mt-1 text-sm text-text-secondary">{item.label}</p>
-                </Reveal>
-              );
-            })}
+          {/* Photo collage */}
+          <div className="relative grid grid-cols-[1.15fr_1fr] grid-rows-2 gap-4">
+            <Reveal className="row-span-2">
+              <Photo
+                src="/images/about-team.jpg"
+                alt="Surgical team in masks and caps looking down at the camera"
+                priority
+                className="h-full min-h-[420px] rounded-[32px] shadow-xl shadow-ink-900/10 ring-1 ring-border"
+              />
+            </Reveal>
+            <Reveal delay={100}>
+              <Photo
+                src="/images/about-care.jpg"
+                alt="Two people holding hands in a gesture of support"
+                className="h-full rounded-[32px] ring-1 ring-border"
+              />
+            </Reveal>
+            <Reveal delay={200}>
+              <Photo
+                src="/images/about-clinic.jpg"
+                alt="Bright, modern clinic waiting area"
+                className="h-full rounded-[32px] ring-1 ring-border"
+              />
+            </Reveal>
+
+            <div className="animate-float absolute -bottom-6 left-6 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 shadow-xl shadow-ink-900/10">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <Users className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-ink-900">150K+ patients served</p>
+                <p className="text-xs text-text-secondary">and counting, across India</p>
+              </div>
+            </div>
           </div>
+        </div>
+      </section>
+
+      {/* Highlights */}
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {highlights.map((item, i) => {
+            const Icon = item.icon;
+            return (
+              <Reveal key={item.label} delay={i * 90} className="rounded-[28px] border border-border bg-white p-6 shadow-sm">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${item.tone}`}>
+                  <Icon className="h-6 w-6" strokeWidth={1.75} />
+                </div>
+                <p className="mt-6 text-2xl font-extrabold tracking-[-0.03em] text-ink-900">{item.value}</p>
+                <p className="mt-1 text-sm text-text-secondary">{item.label}</p>
+              </Reveal>
+            );
+          })}
         </div>
       </section>
 

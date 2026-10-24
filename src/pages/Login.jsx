@@ -2,6 +2,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, LogOut } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import AuthForm from '../components/AuthForm';
+import Photo from '../components/Photo';
 import MediSlipLogo from '../components/MediSlipLogo';
 import { clearSession, useSession } from '../lib/session';
 
@@ -18,22 +19,31 @@ const Login = () => {
       <main className="relative">
         <div className="bg-grid pointer-events-none absolute inset-x-0 top-0 h-[480px]" />
         <div className="relative mx-auto grid max-w-6xl items-start gap-10 px-4 pb-24 pt-8 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8 lg:pt-16">
-          <div className="hidden lg:block">
-            <MediSlipLogo className="h-14 w-14" />
-            <h1 className="mt-8 text-5xl font-extrabold leading-[1.05] tracking-[-0.035em] text-ink-900">
-              Your health, <span className="text-brand-blue">one slip</span> away.
-            </h1>
-            <p className="mt-5 max-w-md text-lg leading-8 text-text-secondary">
-              Sign in to consult verified doctors and keep every prescription and report in one secure place.
-            </p>
-            <ul className="mt-8 space-y-3 text-ink-900">
-              {['Consult by video, chat or in-clinic', 'Digital prescriptions you can share', 'Your records stay private'].map((t) => (
-                <li key={t} className="flex items-center gap-3 font-semibold">
-                  <CheckCircle2 className="h-5 w-5 text-success" /> {t}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <Photo
+            src="/images/login-doctor.jpg"
+            alt="Smiling doctor in blue scrubs with a stethoscope"
+            priority
+            className="hidden min-h-[640px] rounded-[40px] shadow-2xl shadow-ink-900/10 ring-1 ring-border lg:block"
+            imgClassName="object-top"
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-950/90 via-ink-900/30 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 p-10 text-white">
+              <MediSlipLogo className="h-12 w-12" />
+              <h1 className="mt-6 text-4xl font-extrabold leading-[1.05] tracking-[-0.035em]">
+                Your health, <span className="text-brand-mint">one slip</span> away.
+              </h1>
+              <p className="mt-4 max-w-md leading-7 text-white/80">
+                Sign in to consult verified doctors and keep every prescription and report in one secure place.
+              </p>
+              <ul className="mt-6 space-y-2.5">
+                {['Consult by video, chat or in-clinic', 'Digital prescriptions you can share', 'Your records stay private'].map((t) => (
+                  <li key={t} className="flex items-center gap-3 text-sm font-semibold">
+                    <CheckCircle2 className="h-5 w-5 text-brand-mint" /> {t}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Photo>
 
           <div className="rounded-[32px] border border-border bg-white p-6 shadow-xl shadow-ink-900/[0.04] sm:p-10">
             {session ? (

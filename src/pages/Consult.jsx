@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BadgeCheck, CheckCircle2, Clock, Loader2, LockKeyhole, Send, Smartphone } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import Photo from '../components/Photo';
 import { concerns, consultTypes, findConcern, specialities } from '../data/care';
 import { useSession } from '../lib/session';
 
@@ -257,6 +258,23 @@ const Consult = () => {
           {/* Trust sidebar */}
           <aside>
             <div className="sticky top-24 space-y-4">
+              <Photo
+                src="/images/consult-doctor.jpg"
+                alt="Smiling doctor with a stethoscope, seated"
+                priority
+                className="aspect-[4/5] rounded-[28px] ring-1 ring-border sm:aspect-[16/10] lg:aspect-[4/5]"
+                imgClassName="object-top"
+              >
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-900/80 via-ink-900/10 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold backdrop-blur">
+                    <span className="h-2 w-2 rounded-full bg-emerald-400" /> Doctors online now
+                  </span>
+                  <p className="mt-3 text-lg font-extrabold leading-tight tracking-[-0.02em]">Verified doctors, ready when you are</p>
+                  <p className="mt-1 text-xs text-white/80">Most video consults connect in about 60 seconds.</p>
+                </div>
+              </Photo>
+
               <div className="rounded-[28px] border border-border bg-white p-6">
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-text-secondary">How it works</p>
                 <ol className="mt-4 space-y-4">
