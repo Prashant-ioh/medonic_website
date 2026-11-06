@@ -1,14 +1,6 @@
 // Vercel serverless function: receives a consultation request from /consult and
-// emails it to the MediSlip team via Gmail SMTP.
-//
-// Required environment variables (Vercel → Project → Settings → Environment Variables):
-//   SMTP_USER  Gmail address that sends the email, e.g. prashantmishra4424@gmail.com
-//   SMTP_PASS  16-character Gmail App Password (not the normal Gmail password)
-// Optional:
-//   MAIL_TO    Where requests are delivered (defaults to prashantmishra4424@gmail.com)
-import nodemailer from 'nodemailer';
-
-const MAIL_TO = process.env.MAIL_TO || 'prashantmishra4424@gmail.com';
+// emails it to the MediSlip team (see server/mail.js for the SMTP settings).
+import { escapeHtml, isMailConfigured, parseBody, sendRows } from '../server/mail.js';
 
 const LIMITS = {
   fullName: 80,
@@ -22,9 +14,6 @@ const LIMITS = {
   consultType: 40,
   symptoms: 2000,
 };
-
-const escapeHtml = (s) =>
-  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 function clean(body) {
   const out = {};
@@ -51,7 +40,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : req.body || {};
+  const body = parseBody(req);
 
   // Honeypot: real visitors never see or fill this field; bots usually do.
   if (body.website) return res.status(200).json({ success: true });
@@ -64,7 +53,7 @@ export default async function handler(req, res) {
   const problem = validate(data);
   if (problem) return res.status(400).json({ success: false, message: problem });
 
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  if (!isMailConfigured()) {
     console.error('consult-request: SMTP_USER / SMTP_PASS are not configured');
     return res.status(500).json({ success: false, message: 'Requests are temporarily unavailable. Please try again later.' });
   }
@@ -81,42 +70,14 @@ export default async function handler(req, res) {
     ['Symptoms', data.symptoms || '—'],
   ];
 
-  const submittedAt = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
-
-  const html = `
-    <div style="font-family:Arial,sans-serif;max-width:560px;color:#101828">
-      <h2 style="color:#0048FC;margin:0 0 4px">New consultation request</h2>
-      <p style="color:#667085;margin:0 0 16px">Submitted ${escapeHtml(submittedAt)} IST via medislip-website</p>
-      <table cellpadding="8" style="border-collapse:collapse;width:100%;font-size:14px">
-        ${rows
-          .map(
-            ([k, v]) => `<tr>
-              <td style="border:1px solid #D9DEE8;background:#F5F7FB;font-weight:bold;width:140px;vertical-align:top">${escapeHtml(k)}</td>
-              <td style="border:1px solid #D9DEE8;white-space:pre-wrap">${escapeHtml(v)}</td>
-            </tr>`
-          )
-          .join('')}
-      </table>
-      <p style="margin-top:16px"><a href="tel:+91${escapeHtml(data.phone)}" style="color:#1D63ED;font-weight:bold">Call +91 ${escapeHtml(data.phone)}</a></p>
-    </div>`;
-
-  const text = rows.map(([k, v]) => `${k}: ${v}`).join('\n');
-
   try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-    });
-
-    await transporter.sendMail({
-      from: `"MediSlip Website" <${process.env.SMTP_USER}>`,
-      to: MAIL_TO,
-      replyTo: data.email || undefined,
+    await sendRows({
       subject: `New consult request: ${data.fullName} — ${data.concern || data.consultType}`,
-      text: `New consultation request (${submittedAt} IST)\n\n${text}`,
-      html,
+      heading: 'New consultation request',
+      rows,
+      replyTo: data.email,
+      footerHtml: `<p style="margin-top:16px"><a href="tel:+91${escapeHtml(data.phone)}" style="color:#1D63ED;font-weight:bold">Call +91 ${escapeHtml(data.phone)}</a></p>`,
     });
-
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('consult-request: sendMail failed', err);

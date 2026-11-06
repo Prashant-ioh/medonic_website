@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import About from './pages/About';
 import Consult from './pages/Consult';
 import Login from './pages/Login';
+import Pharmacy from './pages/Pharmacy';
 
 // Scroll to the #section in the URL (e.g. /#services from the About page), or to the top on page change.
 function ScrollManager() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/consult" element={<Consult />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/pharmacy" element={<Pharmacy />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

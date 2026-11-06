@@ -9,8 +9,16 @@ const links = [
   { label: 'Specialities', to: '/#specialities' },
   { label: 'How it works', to: '/#how-it-works' },
   { label: 'Stories', to: '/#stories' },
+  { label: 'Pharmacy', to: '/pharmacy', badge: 'Live' },
   { label: 'About', to: '/about' },
 ];
+
+const Badge = ({ children }) => (
+  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-700 ring-1 ring-emerald-200">
+    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+    {children}
+  </span>
+);
 
 const Navbar = () => {
   const { pathname } = useLocation();
@@ -54,11 +62,12 @@ const Navbar = () => {
             <Link
               key={link.label}
               to={link.to}
-              className={`rounded-full px-4 py-2 transition ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 transition ${
                 isActive(link.to) ? 'bg-primary-50 text-primary-700' : 'hover:bg-background hover:text-ink-900'
               }`}
             >
               {link.label}
+              {link.badge && <Badge>{link.badge}</Badge>}
             </Link>
           ))}
         </nav>
@@ -112,7 +121,10 @@ const Navbar = () => {
               onClick={() => setOpen(false)}
               className="flex items-center justify-between rounded-2xl px-4 py-3.5 text-base font-semibold text-ink-900 transition hover:bg-primary-50"
             >
-              {link.label}
+              <span className="inline-flex items-center gap-2">
+                {link.label}
+                {link.badge && <Badge>{link.badge}</Badge>}
+              </span>
               <ArrowRight className="h-4 w-4 text-text-secondary" />
             </Link>
           ))}

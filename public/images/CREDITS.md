@@ -26,3 +26,5 @@ Source photo IDs are listed so they can be re-downloaded at a different size:
 | about-clinic.jpg | 1631248055158-edec7a3c072b | About › intro |
 | consult-doctor.jpg | 1651008376811-b90baee60c1f | Consult › sidebar |
 | login-doctor.jpg | 1622253692010-333f2da6031d | Login › side panel |
+| pharmacy-store.jpg | 1576602976047-174e57a47881 | Pharmacy › hero, Home › pharmacy software |
+| pharmacy-pills.jpg | 1631549916768-4119b2e5f926 | Pharmacy › built for |

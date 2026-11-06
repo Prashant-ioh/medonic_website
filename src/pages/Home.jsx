@@ -7,6 +7,8 @@ import Reveal from '../components/Reveal';
 import Photo from '../components/Photo';
 import MediSlipLogo from '../components/MediSlipLogo';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { sendLead } from '../lib/leads';
+import { BillCard, ExpiryChip } from '../components/PharmacyMock';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -24,6 +26,7 @@ import {
   MapPin,
   Mic,
   PhoneOff,
+  Pill,
   Plus,
   Search,
   ShieldCheck,
@@ -286,6 +289,7 @@ const Home = () => {
   const [query, setQuery] = useState('');
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [phoneStatus, setPhoneStatus] = useState('idle'); // idle | sending | sent
 
   const scrollAppointments = (direction) => {
     scrollRef.current?.scrollBy({ left: direction * 320, behavior: 'smooth' });
@@ -296,10 +300,21 @@ const Home = () => {
     navigate(query.trim() ? `/consult?q=${encodeURIComponent(query.trim())}` : '/consult');
   };
 
-  const submitPhone = (e) => {
+  const submitPhone = async (e) => {
     e.preventDefault();
-    setPhoneError(/^[6-9]\d{9}$/.test(phone) ? '' : 'Enter a valid 10-digit mobile number');
-    // TODO: call the SMS-link API once it is available.
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      setPhoneError('Enter a valid 10-digit mobile number');
+      return;
+    }
+    setPhoneError('');
+    setPhoneStatus('sending');
+    try {
+      await sendLead({ type: 'app-link', phone });
+      setPhoneStatus('sent');
+    } catch (err) {
+      setPhoneStatus('idle');
+      setPhoneError(err.message);
+    }
   };
 
   return (
@@ -763,6 +778,69 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Pharmacy software */}
+      <section id="pharmacy" className="border-t border-border bg-white py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal className="relative overflow-hidden rounded-[40px] bg-ink-900 text-white">
+            <div className="pointer-events-none absolute -left-20 -top-24 h-96 w-96 rounded-full bg-brand-mint/20 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-32 right-1/4 h-80 w-80 rounded-full bg-brand-blue/50 blur-3xl" />
+
+            <div className="relative grid items-center gap-10 px-6 py-12 sm:px-12 lg:grid-cols-[1.1fr_1fr] lg:px-16 lg:py-16">
+              <div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-sm font-bold">
+                    <span aria-hidden="true">💊</span> MediSlip <span className="text-ink-200">|</span> Pharmacy Software
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-mint/15 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-mint ring-1 ring-brand-mint/40">
+                    <LiveDot /> Live now
+                  </span>
+                </div>
+                <h2 className="mt-5 text-3xl font-extrabold tracking-[-0.03em] sm:text-5xl">
+                  Now for chemists, too: run your pharmacy from one screen.
+                </h2>
+                <p className="mt-4 max-w-lg leading-7 text-ink-200">
+                  Fast GST billing, batch and expiry tracking, supplier management and reports, with prescriptions from MediSlip
+                  doctors flowing straight to your counter.
+                </p>
+                <ul className="mt-6 grid gap-2.5 text-sm font-semibold sm:grid-cols-2">
+                  {['Bills in seconds, printed or on WhatsApp', 'Expiry alerts 30/60/90 days out', 'Free setup & data migration', 'Works offline on any PC'].map((t) => (
+                    <li key={t} className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-mint" /> {t}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <a
+                    href="/pharmacy"
+                    className="inline-flex items-center gap-2 rounded-full bg-brand-mint px-7 py-3.5 text-sm font-bold text-brand-navy shadow-xl transition hover:bg-white"
+                  >
+                    <Pill className="h-4 w-4" /> Explore Pharmacy Software
+                  </a>
+                  <a
+                    href="/pharmacy#demo"
+                    className="inline-flex items-center gap-2 rounded-full border border-white/30 px-7 py-3.5 text-sm font-bold text-white transition hover:bg-white/10"
+                  >
+                    Book a free demo <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+
+              <div className="relative pb-20 sm:pb-24">
+                <Photo
+                  src="/images/pharmacy-store.jpg"
+                  alt="Bright modern pharmacy with white shelves of medicines"
+                  className="aspect-[4/3] rounded-[28px] ring-1 ring-white/15"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink-950/60 via-transparent to-transparent" />
+                  <ExpiryChip className="animate-float absolute right-4 top-4" />
+                </Photo>
+                <BillCard className="absolute bottom-0 left-2 sm:left-6" />
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* Testimonials */}
       <section id="stories" className="border-y border-border bg-white py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -812,30 +890,43 @@ const Home = () => {
                 Video consultations, prescriptions and lab reports — all synced to one app, available 24/7.
               </p>
 
-              <form onSubmit={submitPhone} noValidate className="mt-8 max-w-md">
-                <label htmlFor="app-phone" className="text-sm font-semibold text-white">Get the download link by SMS</label>
-                <div className={`mt-3 flex items-center gap-2 rounded-2xl border bg-white/[0.06] p-1.5 transition focus-within:border-brand-mint ${phoneError ? 'border-danger' : 'border-white/15'}`}>
-                  <span className="pl-3 text-sm font-semibold text-ink-200">+91</span>
-                  <input
-                    id="app-phone"
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    value={phone}
-                    onChange={(e) => {
-                      setPhone(e.target.value.replace(/\D/g, ''));
-                      setPhoneError('');
-                    }}
-                    placeholder="Mobile number"
-                    aria-invalid={!!phoneError}
-                    className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-sm text-white outline-none placeholder:text-ink-200/60"
-                  />
-                  <button className="shrink-0 rounded-xl bg-brand-mint px-5 py-2.5 text-sm font-bold text-brand-navy transition hover:bg-white">
-                    Send link
-                  </button>
+              {phoneStatus === 'sent' ? (
+                <div role="status" className="mt-8 flex max-w-md items-start gap-3 rounded-2xl border border-brand-mint/40 bg-brand-mint/10 p-4 text-sm text-white">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-mint" />
+                  <p>
+                    Thanks! Our team will text the download link to <span className="font-bold">+91 {phone}</span> shortly.
+                  </p>
                 </div>
-                {phoneError && <p className="mt-2 text-sm text-red-300">{phoneError}</p>}
-              </form>
+              ) : (
+                <form onSubmit={submitPhone} noValidate className="mt-8 max-w-md">
+                  <label htmlFor="app-phone" className="text-sm font-semibold text-white">Get the download link by SMS</label>
+                  <div className={`mt-3 flex items-center gap-2 rounded-2xl border bg-white/[0.06] p-1.5 transition focus-within:border-brand-mint ${phoneError ? 'border-danger' : 'border-white/15'}`}>
+                    <span className="pl-3 text-sm font-semibold text-ink-200">+91</span>
+                    <input
+                      id="app-phone"
+                      type="tel"
+                      inputMode="numeric"
+                      maxLength={10}
+                      value={phone}
+                      onChange={(e) => {
+                        setPhone(e.target.value.replace(/\D/g, ''));
+                        setPhoneError('');
+                      }}
+                      placeholder="Mobile number"
+                      aria-invalid={!!phoneError}
+                      className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-sm text-white outline-none placeholder:text-ink-200/60"
+                    />
+                    <button
+                      disabled={phoneStatus === 'sending'}
+                      className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-brand-mint px-5 py-2.5 text-sm font-bold text-brand-navy transition hover:bg-white disabled:cursor-wait disabled:opacity-70"
+                    >
+                      {phoneStatus === 'sending' && <Loader2 className="h-4 w-4 animate-spin" />}
+                      {phoneStatus === 'sending' ? 'Sending…' : 'Send link'}
+                    </button>
+                  </div>
+                  {phoneError && <p className="mt-2 text-sm text-red-300">{phoneError}</p>}
+                </form>
+              )}
 
               <div className="mt-6 flex flex-wrap gap-3">
                 {[
