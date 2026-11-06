@@ -1,6 +1,7 @@
 // Vercel serverless function: receives a consultation request from /consult and
 // emails it to the MediSlip team (see server/mail.js for the SMTP settings).
 import { escapeHtml, isMailConfigured, parseBody, sendRows } from '../server/mail.js';
+import { isMobile, MOBILE_ERROR, normalisePhone } from '../server/phone.js';
 
 const LIMITS = {
   fullName: 80,
@@ -20,12 +21,13 @@ function clean(body) {
   for (const [key, max] of Object.entries(LIMITS)) {
     out[key] = typeof body?.[key] === 'string' ? body[key].trim().slice(0, max) : '';
   }
+  out.phone = normalisePhone(body?.phone);
   return out;
 }
 
 function validate(d) {
   if (!d.fullName) return 'Please enter your name.';
-  if (!/^[6-9]\d{9}$/.test(d.phone)) return 'Please enter a valid 10-digit mobile number.';
+  if (!isMobile(d.phone)) return MOBILE_ERROR;
   if (d.email && !/^\S+@\S+\.\S{2,}$/.test(d.email)) return 'Please enter a valid email address.';
   if (!/^\d{1,3}$/.test(d.age) || Number(d.age) < 1 || Number(d.age) > 120) return 'Please enter a valid age.';
   if (!d.gender) return 'Please select a gender.';

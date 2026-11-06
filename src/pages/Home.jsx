@@ -9,6 +9,7 @@ import MediSlipLogo from '../components/MediSlipLogo';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { sendLead } from '../lib/leads';
 import { BillCard, ExpiryChip } from '../components/PharmacyMock';
+import { isMobile, normalisePhone } from '../../server/phone.js';
 import {
   ArrowRight,
   ArrowUpRight,
@@ -302,7 +303,7 @@ const Home = () => {
 
   const submitPhone = async (e) => {
     e.preventDefault();
-    if (!/^[6-9]\d{9}$/.test(phone)) {
+    if (!isMobile(phone)) {
       setPhoneError('Enter a valid 10-digit mobile number');
       return;
     }
@@ -906,10 +907,10 @@ const Home = () => {
                       id="app-phone"
                       type="tel"
                       inputMode="numeric"
-                      maxLength={10}
+                      maxLength={13}
                       value={phone}
                       onChange={(e) => {
-                        setPhone(e.target.value.replace(/\D/g, ''));
+                        setPhone(normalisePhone(e.target.value));
                         setPhoneError('');
                       }}
                       placeholder="Mobile number"

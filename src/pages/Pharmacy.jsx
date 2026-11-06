@@ -6,6 +6,7 @@ import Reveal from '../components/Reveal';
 import Photo from '../components/Photo';
 import { BillCard, ExpiryChip } from '../components/PharmacyMock';
 import { sendLead } from '../lib/leads';
+import { isMobile, MOBILE_ERROR, normalisePhone } from '../../server/phone.js';
 import {
   ArrowRight,
   BarChart3,
@@ -116,7 +117,7 @@ const faqs = [
 
 function validate(f) {
   if (f.name.trim().length < 2) return 'Please enter your name.';
-  if (!/^[6-9]\d{9}$/.test(f.phone)) return 'Please enter a valid 10-digit mobile number.';
+  if (!isMobile(f.phone)) return MOBILE_ERROR;
   if (f.email.trim() && !/^\S+@\S+\.\S{2,}$/.test(f.email.trim())) return 'Please enter a valid email address.';
   return '';
 }
@@ -160,7 +161,7 @@ const DemoForm = () => {
   const [error, setError] = useState('');
 
   const set = (key) => (e) => {
-    setForm((f) => ({ ...f, [key]: key === 'phone' ? e.target.value.replace(/\D/g, '').slice(0, 10) : e.target.value }));
+    setForm((f) => ({ ...f, [key]: key === 'phone' ? normalisePhone(e.target.value) : e.target.value }));
     setError('');
   };
 
@@ -220,7 +221,7 @@ const DemoForm = () => {
             <input
               type="tel"
               inputMode="numeric"
-              maxLength={10}
+              maxLength={13}
               className="min-w-0 flex-1 bg-transparent px-3 py-3 text-sm text-ink-900 outline-none placeholder:text-text-secondary/70"
               value={form.phone}
               onChange={set('phone')}

@@ -1,15 +1,15 @@
 // Vercel serverless function: emails the smaller site forms (app download link by SMS,
 // newsletter signup, pharmacy software demo) to the MediSlip team. See server/mail.js for the SMTP settings.
 import { isMailConfigured, parseBody, sendRows } from '../server/mail.js';
+import { isMobile, MOBILE_ERROR, normalisePhone } from '../server/phone.js';
 
-const PHONE = /^[6-9]\d{9}$/;
 const EMAIL = /^\S+@\S+\.\S{2,}$/;
 
 const TYPES = {
   'app-link': {
     heading: 'App download link requested',
     subject: (d) => `App link request: +91 ${d.phone}`,
-    validate: (d) => (PHONE.test(d.phone) ? '' : 'Please enter a valid 10-digit mobile number.'),
+    validate: (d) => (isMobile(d.phone) ? '' : MOBILE_ERROR),
   },
   newsletter: {
     heading: 'Newsletter signup',
@@ -21,7 +21,7 @@ const TYPES = {
     subject: (d) => `Pharmacy demo request: ${d.name}${d.business ? ` — ${d.business}` : ''}`,
     validate: (d) => {
       if (d.name.length < 2) return 'Please enter your name.';
-      if (!PHONE.test(d.phone)) return 'Please enter a valid 10-digit mobile number.';
+      if (!isMobile(d.phone)) return MOBILE_ERROR;
       if (d.email && !EMAIL.test(d.email)) return 'Please enter a valid email address.';
       return '';
     },
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
   const data = {
     name: text(body.name, 80),
     business: text(body.business, 120),
-    phone: typeof body.phone === 'string' ? body.phone.replace(/\D/g, '').slice(0, 10) : '',
+    phone: normalisePhone(body.phone),
     email: text(body.email, 120),
     city: text(body.city, 80),
     message: text(body.message, 1000),

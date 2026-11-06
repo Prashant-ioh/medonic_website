@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { BadgeCheck, CheckCircle2, Clock, Loader2, LockKeyhole, Send, Smartphone } from 'lucide-react';
+import { isMobile, MOBILE_ERROR, normalisePhone } from '../../server/phone.js';
 import Navbar from '../components/Navbar';
 import Photo from '../components/Photo';
 import { concerns, consultTypes, findConcern, specialities } from '../data/care';
@@ -15,7 +16,7 @@ const inputCls =
 function validate(f) {
   if (!f.concern && !f.symptoms.trim()) return 'Please choose a concern or describe your symptoms.';
   if (!f.fullName.trim()) return 'Please enter your name.';
-  if (!/^[6-9]\d{9}$/.test(f.phone)) return 'Please enter a valid 10-digit mobile number.';
+  if (!isMobile(f.phone)) return MOBILE_ERROR;
   if (f.email && !/^\S+@\S+\.\S{2,}$/.test(f.email)) return 'Please enter a valid email address.';
   if (!/^\d{1,3}$/.test(f.age) || Number(f.age) < 1 || Number(f.age) > 120) return 'Please enter a valid age.';
   if (!f.gender) return 'Please select a gender.';
@@ -55,7 +56,7 @@ const Consult = () => {
   const set = (key) => (e) => {
     const { value, checked, type } = e.target;
     let v = type === 'checkbox' ? checked : value;
-    if (key === 'phone') v = value.replace(/\D/g, '').slice(0, 10);
+    if (key === 'phone') v = normalisePhone(value);
     if (key === 'age') v = value.replace(/\D/g, '').slice(0, 3);
     update(key, v);
   };
@@ -199,7 +200,7 @@ const Consult = () => {
                   <Field label="Mobile number" required>
                     <div className="flex">
                       <span className="flex items-center rounded-l-xl border border-r-0 border-border bg-background px-3 text-sm font-semibold text-text-secondary">+91</span>
-                      <input type="tel" inputMode="numeric" autoComplete="tel-national" value={form.phone} onChange={set('phone')} placeholder="10-digit mobile" className={`${inputCls} rounded-l-none`} />
+                      <input type="tel" inputMode="numeric" autoComplete="tel-national" maxLength={13} value={form.phone} onChange={set('phone')} placeholder="10-digit mobile" className={`${inputCls} rounded-l-none`} />
                     </div>
                   </Field>
                   <Field label="Email" hint="Optional">
